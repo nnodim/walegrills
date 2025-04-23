@@ -1,103 +1,175 @@
-import Image from "next/image";
+"use client"; // This page component uses client-side state/hooks
 
-export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+import DeliveryForm from "@/components/DeliveryForm";
+import ProgressIndicator from "@/components/ProgressIndicator";
+import SectionHeader from "@/components/SectionHeader";
+import React from "react";
+import MealCounter from "@/components/meal-plan/MealCounter";
+import MealItemCard from "@/components/meal-plan/MealItemCard";
+import MealPlanSelector from "@/components/meal-plan/MealPlanSelector";
+import NavigationButtons from "@/components/NavigationButtons";
+import { Button } from "@/components/ui/button";
+import { meals, useMealStore } from "@/store/useMealStore";
+import OrderSummary from "@/components/OrderSummary";
+// Import Delivery Store if separate
+// import { useDeliveryStore } from '@/store/deliveryStore';
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
-  );
+interface DeliveryFormData {
+  fullName: string;
+  email: string;
+  phone: string;
+  address: string;
+  apartment?: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  instructions?: string;
 }
+
+const steps = [
+  { id: 1, name: "Select Plan" },
+  { id: 2, name: "Choose Meals" },
+  { id: 3, name: "Delivery" },
+  { id: 4, name: "Payment" },
+];
+
+const MealSelectionPage: React.FC = () => {
+  const {
+    currentStep,
+    setCurrentStep,
+    plan,
+    mealLimit,
+    mealQuantities,
+    paymentMethod, // Get payment method from store
+  } = useMealStore();
+
+  // Calculate selected count dynamically
+  const selectedCount = Object.values(mealQuantities).reduce(
+    (sum, quantity) => sum + quantity,
+    0
+  );
+
+  // Handler for valid form submission (called by react-hook-form's handleSubmit)
+  const handleDeliverySubmit = (data: DeliveryFormData) => {
+    console.log("Delivery Form Data:", data);
+    // Now that we have valid form data, proceed with the order
+    // (This is where you would typically send data to a backend)
+
+    console.log("Order Placed!", {
+      plan,
+      mealQuantities, // This comes from Zustand
+      deliveryFormData: data, // This comes from react-hook-form
+      paymentMethod, // This comes from Zustand
+    });
+
+    alert("Thank you for your order! Your meals will be delivered soon.");
+
+    // Optionally reset relevant states after placing the order
+    // resetMealQuantities(); // Maybe don't reset immediately, show order confirmation
+    // Consider adding a confirmation step (step 4)
+    setCurrentStep(1); // Go back to step 1 for now
+    window.scrollTo(0, 0); // Scroll to top
+  };
+
+  // Handler for "Proceed to Delivery" - moves from step 2 to step 3
+  const handleProceedToDelivery = () => {
+    if (selectedCount === mealLimit) {
+      setCurrentStep(3); // Move to Delivery step (Step 3)
+      window.scrollTo(0, 0); // Scroll to top
+    }
+    // The button itself is disabled if selectedCount !== mealLimit
+  };
+
+  // Handler for "Back to Meals" - moves from step 3 back to step 2
+  const handleBackToMeals = () => {
+    setCurrentStep(2); // Go back to Choose Meals step (Step 2)
+    window.scrollTo(0, 0); // Scroll to top
+  };
+
+  // Determine if the "Proceed" button should be disabled
+  const proceedDisabled = selectedCount !== mealLimit;
+
+  return (
+    <main className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+      <ProgressIndicator variant="compact" steps={steps} currentStep={currentStep} />
+
+      {/* Step 1 & 2: Select Plan & Choose Meals */}
+      {(currentStep === 1 || currentStep === 2) && (
+        <div className="meal-plan-section">
+          <SectionHeader
+            title="Select Your Meal Plan"
+            description="Choose the perfect meal plan that fits your lifestyle. Our chef-prepared meals are made with fresh ingredients and delivered right to your door."
+          />
+          {/* Meal Plan Selection */}
+          <MealPlanSelector />
+          {/* Choose Meals Section */}
+          <MealCounter /> {/* Renders the counter and warning */}
+          {/* Render the grid of meal items */}
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {meals.map((meal) => (
+              <MealItemCard
+                key={meal.id}
+                meal={meal}
+                quantity={mealQuantities[meal.id] || 0} // Get quantity from store
+                mealLimit={mealLimit}
+                selectedCount={selectedCount}
+              />
+            ))}
+          </div>
+          {/* Navigation buttons for this section */}
+          <div className="flex justify-between mt-8">
+            <NavigationButtons // Use the NavigationButtons component
+              currentStep={currentStep} // Pass current step to control button visibility
+              onProceed={handleProceedToDelivery}
+              proceedDisabled={proceedDisabled}
+              // Pass reset action to NavigationButtons if it has a Reset button
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Step 3 & 4: Delivery & Payment */}
+      {(currentStep === 3 || currentStep === 4) && (
+        <div className="address-section">
+          <SectionHeader
+            title="Delivery Information"
+            description="Please provide your delivery details so we can bring your meals right to your door."
+          />
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="md:col-span-2">
+              {/* Pass the handleDeliverySubmit callback to the DeliveryForm */}
+              <DeliveryForm onSubmit={handleDeliverySubmit} />
+            </div>
+            <div>
+              <div className="bg-white shadow-md rounded-lg p-6 sticky top-6">
+                <OrderSummary />
+                <div className="mt-6 space-y-4">
+                  <Button
+                    variant="outline"
+                    className="w-full rounded-button whitespace-nowrap"
+                    onClick={handleBackToMeals}
+                  >
+                    Back to Meals
+                  </Button>
+                  {/* This button triggers the form submission in DeliveryForm */}
+                  <Button
+                    type="submit" // Set type to submit
+                    form="deliveryForm" // Associate with the form ID
+                    className="w-full rounded-button whitespace-nowrap bg-[#B4846C] hover:bg-[#B4846C]/80"
+                    // react-hook-form handles disabling based on validation
+                    // You could add `disabled={!formState.isValid}` if passing formState down
+                    // but type="submit" and required fields handle basic cases
+                  >
+                    Place Order
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </main>
+  );
+};
+
+export default MealSelectionPage;
