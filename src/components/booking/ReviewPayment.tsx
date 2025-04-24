@@ -181,25 +181,6 @@ const ReviewPayment: React.FC = () => {
           )}
         </div>
 
-        {/* Price Breakdown */}
-        <h3 className="text-lg font-medium text-gray-900 mb-4">
-          Price Breakdown
-        </h3>
-        <div className="bg-gray-50 rounded p-4">
-          {priceDetails.breakdown.map((item, index) => (
-            <div key={index} className="flex justify-between mb-2">
-              <span className="text-sm text-gray-600">{item.label}</span>
-              <span className="text-sm font-medium text-gray-900">
-                {item.amount}
-              </span>
-            </div>
-          ))}
-          <div className="border-t border-gray-200 my-2"></div>
-          <div className="flex justify-between font-medium">
-            <span className="text-gray-900">Total Amount</span>
-            <span className="text-primary text-lg">{priceDetails.total}</span>
-          </div>
-        </div>
       </div>
       {/* Payment Options */}
       <h3 className="text-lg font-medium text-gray-900 mb-4">

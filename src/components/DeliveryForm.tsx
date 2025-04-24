@@ -1,23 +1,21 @@
 "use client";
 
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils"; // Assuming you have this utility
+import { ChevronDown } from "lucide-react";
 import React from "react";
 import { useForm } from "react-hook-form"; // Import useForm and SubmitHandler
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { cn } from "@/lib/utils"; // Assuming you have this utility
 
 // Define the type for your form data
-interface DeliveryFormData {
-  fullName: string;
+export interface DeliveryFormData {
+  prefix: string;
+  name: string;
   email: string;
-  phone: string;
   address: string;
-  apartment?: string; // Optional field
-  city: string;
-  state: string;
-  zipCode: string;
-  instructions?: string; // Optional field
+  deliveryDate: string;
+  phoneNumber: string;
+  deliveryAddress: string;
 }
 
 interface DeliveryFormProps {
@@ -29,19 +27,17 @@ const DeliveryForm: React.FC<DeliveryFormProps> = ({ onSubmit }) => {
   const {
     register, // Function to register inputs
     handleSubmit, // Function to handle form submission
-    formState: { errors, }, // Access form state like errors and validity
+    formState: { errors }, // Access form state like errors and validity
   } = useForm<DeliveryFormData>({
     // You can set default values here if needed
     defaultValues: {
-      fullName: "",
+      prefix: "Mr",
+      name: "",
       email: "",
-      phone: "",
+      phoneNumber: "",
+      deliveryAddress: "",
+      deliveryDate: "",
       address: "",
-      apartment: "", // Initialize optional fields
-      city: "",
-      state: "",
-      zipCode: "",
-      instructions: "", // Initialize optional fields
     },
     mode: "onTouched", // Validate on blur
   });
@@ -61,22 +57,44 @@ const DeliveryForm: React.FC<DeliveryFormProps> = ({ onSubmit }) => {
       >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="flex flex-col gap-3">
-            <Label htmlFor="fullName">Full Name</Label>
+            <Label htmlFor="prefix">prefix</Label>
+            {/* Using native select registered with RHF */}
+            <div className="relative">
+              {" "}
+              {/* Container for custom arrow positioning */}
+              <select
+                id="prefix"
+                {...register("prefix")} // Register the select field
+                className={cn(
+                  "w-full bg-white border border-gray-300 rounded text-gray-700 py-2 px-3 pr-8 focus:outline-none focus:ring-2 focus:ring-[#B4846C] focus:border-[#B4846C]",
+                  "block appearance-none" // Use appearance-none to hide default arrow
+                )}
+              >
+                <option value="Mr">Mr</option>
+                <option value="Mrs">Mrs</option>
+                <option value="Ms">Ms</option>
+              </select>
+              {/* Custom arrow icon */}
+              <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                <ChevronDown className="text-gray-400" />
+              </div>
+            </div>
+          </div>
+          <div className="flex flex-col gap-3">
+            <Label htmlFor="name">Full Name</Label>
             <Input
               type="text"
-              id="fullName"
+              id="name"
               // Register the input field
-              {...register("fullName", { required: "Full Name is required" })}
+              {...register("name", { required: "Full Name is required" })}
               // className is spread after register to allow customization
               className={cn(
-                errors.fullName && "border-red-500 focus-visible:ring-red-500"
+                errors.name && "border-red-500 focus-visible:ring-red-500"
               )} // Highlight invalid input
             />
             {/* Display validation error */}
-            {errors.fullName && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.fullName.message}
-              </p>
+            {errors.name && (
+              <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>
             )}
           </div>
           <div className="flex flex-col gap-3">
@@ -103,125 +121,68 @@ const DeliveryForm: React.FC<DeliveryFormProps> = ({ onSubmit }) => {
             )}
           </div>
           <div className="flex flex-col gap-3">
-            <Label htmlFor="phone">Phone Number</Label>
+            <Label htmlFor="phoneNumber">Phone Number</Label>
             <Input
               type="tel"
-              id="phone"
-              {...register("phone", { required: "Phone Number is required" })}
+              id="phoneNumber"
+              {...register("phoneNumber", {
+                required: "Phone Number is required",
+              })}
               className={cn(
-                errors.phone && "border-red-500 focus-visible:ring-red-500"
+                errors.phoneNumber &&
+                  "border-red-500 focus-visible:ring-red-500"
               )}
             />
-            {errors.phone && (
+            {errors.phoneNumber && (
               <p className="text-red-500 text-sm mt-1">
-                {errors.phone.message}
+                {errors.phoneNumber.message}
               </p>
             )}
           </div>
           {/* Empty div for grid alignment on smaller screens if needed */}
-          <div className="hidden md:block"></div>{" "}
-          {/* Keep for layout consistency */}
+          <div className="relative flex flex-col gap-3">
+            <Label htmlFor="deliveryDate">Delivery Date</Label>
+            <Input
+              type="date"
+              id="deliveryDate"
+              {...register("deliveryDate", { required: "Date is required" })} // Use custom validation
+              className={cn(
+                errors.deliveryDate &&
+                  "border-red-500 focus-visible:ring-red-500"
+              )}
+            />
+            {errors.deliveryDate && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.deliveryDate.message}
+              </p>
+            )}
+          </div>
         </div>
 
         <div className="flex flex-col gap-3">
-          <Label htmlFor="address">Street Address</Label>
+          <Label htmlFor="deliveryAddress">Delivery Address</Label>
           <Input
             type="text"
-            id="address"
-            {...register("address", { required: "Street Address is required" })}
+            id="deliveryAddress"
+            {...register("deliveryAddress", {
+              required: "Street Address is required",
+            })}
             className={cn(
               errors.address && "border-red-500 focus-visible:ring-red-500"
             )}
           />
-          {errors.address && (
+          {errors.deliveryAddress && (
             <p className="text-red-500 text-sm mt-1">
-              {errors.address.message}
+              {errors.deliveryAddress.message}
             </p>
           )}
         </div>
-
-        <div className="flex flex-col gap-3">
-          <Label htmlFor="apartment">Apartment, Suite, etc. (optional)</Label>
-          <Input
-            type="text"
-            id="apartment"
-            // Register optional fields without 'required'
-            {...register("apartment")}
-          />
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="flex flex-col gap-3">
-            <Label htmlFor="city">City</Label>
-            <Input
-              type="text"
-              id="city"
-              {...register("city", { required: "City is required" })}
-              className={cn(
-                errors.city && "border-red-500 focus-visible:ring-red-500"
-              )}
-            />
-            {errors.city && (
-              <p className="text-red-500 text-sm mt-1">{errors.city.message}</p>
-            )}
-          </div>
-
-          <div className="flex flex-col gap-3">
-            <Label htmlFor="state">State</Label>
-            {/* Consider using a select dropdown for states */}
-            <Input
-              type="text"
-              id="state"
-              {...register("state", { required: "State is required" })}
-              className={cn(
-                errors.state && "border-red-500 focus-visible:ring-red-500"
-              )}
-            />
-            {errors.state && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.state.message}
-              </p>
-            )}
-          </div>
-
-          <div className="flex flex-col gap-3">
-            <Label htmlFor="zipCode">ZIP Code</Label>
-            <Input
-              type="text"
-              id="zipCode"
-              {...register("zipCode", { required: "ZIP Code is required" })}
-              className={cn(
-                errors.zipCode && "border-red-500 focus-visible:ring-red-500"
-              )}
-            />
-            {errors.zipCode && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.zipCode.message}
-              </p>
-            )}
-          </div>
-        </div>
-
-        <div className="flex flex-col gap-3">
-          <Label htmlFor="instructions">Delivery Instructions (optional)</Label>
-          <Textarea
-            id="instructions"
-            rows={3}
-            // Register optional textarea
-            {...register("instructions")}
-          />
-        </div>
-
         {/*
           The submit button will be outside this component (in page.tsx)
           but it must be of type="submit" and within the form element
           (or associated using the form attribute if outside, though less common)
           We pass the onSubmit handler down as a prop.
         */}
-        {/*
-         Example Submit Button (not rendered here, but for reference):
-         <Button type="submit">Place Order</Button>
-         */}
       </form>
     </div>
   );

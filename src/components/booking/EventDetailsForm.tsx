@@ -1,20 +1,13 @@
 // components/booking/EventDetailsForm.tsx
 "use client";
 
-import React from "react";
-import { useForm, SubmitHandler, Controller } from "react-hook-form"; // Import Controller for Shadcn components
-import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { cn } from "@/lib/utils"; // Assuming cn utility
 import { useBookingStore } from "@/store/bookingStore"; // Adjust import path
+import React from "react";
+import { SubmitHandler, useForm } from "react-hook-form"; // Import Controller for Shadcn components
 // No need for RiArrowDownSLine import here if using Shadcn Select's trigger arrow
 
 // Define the type for this step's form data
@@ -41,7 +34,6 @@ const EventDetailsForm: React.FC<EventDetailsFormProps> = ({ onSuccess }) => {
     register,
     handleSubmit,
     formState: { errors },
-    control, // Use control for integrating with Shadcn Select/Checkbox via Controller
   } = useForm<EventDetailsFormData>({
     defaultValues: eventDetails || {
       // Set default values, using data from store if available
@@ -148,7 +140,7 @@ const EventDetailsForm: React.FC<EventDetailsFormProps> = ({ onSuccess }) => {
               valueAsNumber: true,
             })}
             className={cn(
-              errors.date && "border-red-500 focus-visible:ring-red-500"
+              errors.serviceTime && "border-red-500 focus-visible:ring-red-500"
             )}
           />
           {errors.serviceTime && (
@@ -161,30 +153,14 @@ const EventDetailsForm: React.FC<EventDetailsFormProps> = ({ onSuccess }) => {
         {/* Event Type Select (Using Controller for Shadcn Select) */}
         <div className="relative flex flex-col gap-3">
           <Label htmlFor="eventType">Event Type</Label>
-          <Controller
-            name="eventType"
-            control={control}
-            rules={{ required: "Event Type is required" }}
-            render={({ field }) => (
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <SelectTrigger
-                  id="eventType"
-                  className={cn(
-                    "w-full",
-                    errors.eventType &&
-                      "border-red-500 focus-visible:ring-red-500"
-                  )}
-                >
-                  <SelectValue placeholder="Select event type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="wedding">Wedding</SelectItem>
-                  <SelectItem value="birthday">Birthday</SelectItem>
-                  <SelectItem value="corporate">Corporate Event</SelectItem>
-                  <SelectItem value="anniversary">Anniversary</SelectItem>
-                  <SelectItem value="other">Other</SelectItem>
-                </SelectContent>
-              </Select>
+          <Input
+            id="eventType"
+            placeholder="Wedding"
+            {...register("eventType", {
+              required: "Event Type is required",
+            })}
+            className={cn(
+              errors.eventType && "border-red-500 focus-visible:ring-red-500"
             )}
           />
           {errors.eventType && (
@@ -197,29 +173,14 @@ const EventDetailsForm: React.FC<EventDetailsFormProps> = ({ onSuccess }) => {
         {/* Event Style Select (Using Controller for Shadcn Select) */}
         <div className="relative flex flex-col gap-3">
           <Label htmlFor="eventStyle">Event Style</Label>
-          <Controller
-            name="eventStyle"
-            control={control}
-            rules={{ required: "Event Style is required" }}
-            render={({ field }) => (
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <SelectTrigger
-                  id="eventStyle"
-                  className={cn(
-                    "w-full",
-                    errors.eventStyle &&
-                      "border-red-500 focus-visible:ring-red-500"
-                  )}
-                >
-                  <SelectValue placeholder="Select event style" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="buffet">Buffet</SelectItem>
-                  <SelectItem value="plated">Plated Service</SelectItem>
-                  <SelectItem value="family">Family Style</SelectItem>
-                  <SelectItem value="cocktail">Cocktail Reception</SelectItem>
-                </SelectContent>
-              </Select>
+          <Input
+            id="eventStyle"
+            placeholder="Buffet..."
+            {...register("eventStyle", {
+              required: "Event Style is required",
+            })}
+            className={cn(
+              errors.eventStyle && "border-red-500 focus-visible:ring-red-500"
             )}
           />
           {errors.eventStyle && (
