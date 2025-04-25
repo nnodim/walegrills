@@ -59,32 +59,34 @@ export const Navbar = () => {
 
           <div className="flex flex-col text-sm">
             <p>24 Support</p>
-            <p className="text-blue-600 whitespace-nowrap">+1 212-334-0212</p>
+            <p className="text-blue-600 whitespace-nowrap">+44 7951 952265</p>
           </div>
         </div>
         <div className="px-4 py-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center max-w-7xl mx-auto">
-            <div className="flex items-center gap-4 justify-between text-xs">
-              {navLinks.map((link, index) => (
-                <Link
-                  href={`${link.href}`}
-                  key={index}
-                  className={`transition-colors duration-200 px-3 py-2 rounded-full ${
-                    isActive(link.href)
-                      ? "text-[rgb(196,164,132)] font-medium bg-[rgb(196,164,132)]/20"
-                      : "hover:text-[rgb(196,164,132)] hover:bg-[rgb(196,164,132)]/20"
-                  }`}
-                >
-                  {link.label}
-                </Link>
-              ))}
+            <div className="flex items-center justify-center text-xs w-full">
+              <div className="flex items-center gap-4 justify-between text-xs">
+                {navLinks.map((link, index) => (
+                  <Link
+                    href={`${link.href}`}
+                    key={index}
+                    className={`transition-colors duration-200 px-3 py-2 rounded-full ${
+                      isActive(link.href)
+                        ? "text-[rgb(196,164,132)] font-medium bg-[rgb(196,164,132)]/20"
+                        : "hover:text-[rgb(196,164,132)] hover:bg-[rgb(196,164,132)]/20"
+                    }`}
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+              </div>
             </div>
             <div className="flex justify-between items-center gap-4">
               <Link
-                href="/https://walegrills.com/my-account/"
+                href="https://walegrills.com/my-account/"
                 className="rounded-full text-black bg-white flex justify-between items-center gap-2 px-4 py-2 text-xs"
               >
-                <User2 /> <span>login / register</span>
+                <User2 /> <span className="whitespace-nowrap">login / register</span>
               </Link>
             </div>
           </div>
@@ -137,7 +139,7 @@ export const Navbar = () => {
           />
           <div className="flex justify-between items-center gap-4">
             <Link
-              href="/https://walegrills.com/my-account/"
+              href="https://walegrills.com/my-account/"
               className="rounded-full text-black bg-white flex justify-between items-center gap-2 px-4 py-2"
             >
               <User2 />

@@ -79,7 +79,6 @@ const MealSelectionPage: React.FC = () => {
         console.error("Booking successful, but no paymentLink received:", data);
         toast("No paymentLink received");
       }
-      toast("Your meal order has been placed successfully.");
       resetMealQuantities();
     },
     onError: (error) => {

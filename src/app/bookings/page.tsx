@@ -84,7 +84,7 @@ const BookingPage: React.FC = () => {
           finalizeBooking(data?.data); // Pass what's available
         }
 
-        toast("Booking successful. Redirecting to payment...");
+        toast("Redirecting to payment...");
 
         // Redirect the user to the payment link
         // Use router.push for client-side navigation within Next.js
