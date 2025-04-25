@@ -5,10 +5,11 @@ import React from "react";
 import { useForm, SubmitHandler, Controller } from "react-hook-form";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button"; // Import Button for quantity controls
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { IProduct } from "@/types"; // Assuming your product type is defined here
-import { ArrowUp, ArrowDown } from "lucide-react"; // Icons for quantity
+import { IProduct } from "@/types";
+import { ArrowUp, ArrowDown } from "lucide-react";
+import Image from "next/image";
 
 // Define the type for the data this form will submit
 interface ItemSelectionFormData {
@@ -101,10 +102,19 @@ const ItemSelection: React.FC<ItemSelectionProps> = ({
             className="border border-gray-200 rounded-lg p-4 flex flex-col"
           >
             {/* Optional: Display product image if available */}
-            {/* {product.imageUrl && <img src={product.imageUrl} alt={product.name} className="w-full h-32 object-cover rounded-md mb-3" />} */}
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
-              {product.name}
-            </h3>
+            {product.imageurl && (
+              <Image
+                height={128}
+                width={128}
+                src={product.imageurl}
+                alt={product.name}
+                className="w-full h-32 object-cover rounded-md mb-3"
+              />
+            )}
+            <div className="flex flex-col pb-3">
+              <h3 className="text-sm font-medium text-gray-900 mb-2">{product.name}</h3>
+              <p className="text-xs">£{product.amount}</p>
+            </div>
             {/* Optional: Display description/details */}
             {/* {product.description && <p className="text-gray-600 text-sm mb-3">{product.description}</p>} */}
 

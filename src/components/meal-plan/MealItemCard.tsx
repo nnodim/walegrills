@@ -39,7 +39,7 @@ const MealItemCard: React.FC<MealItemCardProps> = ({
         {" "}
         {/* Container for Image */}
         <Image
-          src={meal.imageUrl || "/placeholder-meal.jpg"} // Use imageUrl from IProduct, fallback to placeholder
+          src={meal.imageurl || "/placeholder-meal.jpg"} // Use imageUrl from IProduct, fallback to placeholder
           alt={meal.name} // Use name from IProduct
           fill // Fill the parent container
           className="object-cover"

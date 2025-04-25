@@ -3,7 +3,7 @@ export interface IProduct {
   name: string;
   amount: number;
   description: string;
-  imageUrl?: string;
+  imageurl?: string;
   calories?: number;
   category: string;
   productType: string;

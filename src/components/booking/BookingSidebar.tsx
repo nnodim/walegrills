@@ -1,7 +1,6 @@
 // components/booking/BookingSidebar.tsx
 import React from "react";
 // Import icons needed for the sidebar content
-import Link from "next/link"; // Use Next.js Link
 import { Headset, HelpCircle, ShieldCheckIcon, Star, UserCog2, Utensils } from "lucide-react";
 
 const BookingSidebar: React.FC = () => {
@@ -89,7 +88,7 @@ const BookingSidebar: React.FC = () => {
               <Star size={12} />
             </div>
             <span className="text-xs font-medium text-gray-900">
-              Emily Richardson
+              Mrs. Shade
             </span>
           </div>
           <p className="text-xs text-gray-600">
@@ -107,7 +106,7 @@ const BookingSidebar: React.FC = () => {
               <Star size={12} />
             </div>
             <span className="text-xs font-medium text-gray-900">
-              Michael Thompson
+              Racheal Micheal
             </span>
           </div>
           <p className="text-xs text-gray-600">
@@ -121,12 +120,12 @@ const BookingSidebar: React.FC = () => {
         <p className="text-xs text-gray-600 mb-3">
           If you have any questions...
         </p>
-        <Link
-          href="#"
+        <a
+          href="https://walegrills.com/contact/"
           className="text-xs font-medium text-[#B4846C] flex items-center"
         >
           <HelpCircle className="mr-1" size={14} /> Contact Support
-        </Link>
+        </a>
       </div>
     </div>
   );

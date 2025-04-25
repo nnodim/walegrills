@@ -17,14 +17,13 @@ export interface PersonalInfoData {
 
 export interface EventDetailsData {
   guests: number;
-  date: string; // YYYY-MM-DD format
-  bookingType: "On-site"; // This was readonly in HTML
-  serviceTime: number; // e.g., '4-6', '6-10', '10-15'
-  eventType: string; // e.g., 'wedding', 'birthday'
-  eventStyle: string; // e.g., 'buffet', 'plated'
-  eventAddress: string; // Use different name than personal address if needed
-  // REMOVE itemsNeeded from here - it's now in the new step's state
-  // itemsNeeded: string[];
+  date: string;
+  bookingType: "On-site";
+  serviceTime: number;
+  eventType: string;
+  eventStyle: string;
+  eventAddress: string;
+  note?: string;
 }
 
 // Define the type for the selected items, matching the API structure

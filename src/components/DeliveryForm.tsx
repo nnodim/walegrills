@@ -42,6 +42,16 @@ const DeliveryForm: React.FC<DeliveryFormProps> = ({ onSubmit }) => {
     mode: "onTouched", // Validate on blur
   });
 
+  const validateWeekend = (value: string) => {
+    if (!value) return "Event Date is required";
+    const selectedDate = new Date(value);
+    const day = selectedDate.getDay(); // 0 = Sunday, 6 = Saturday
+    if (day !== 0 && day !== 6) {
+      return "Please select a weekend date (Saturday or Sunday)";
+    }
+    return true; // Validation passes
+  };
+
   // react-hook-form handles the onSubmit logic internally via handleSubmit
   // The form element itself should use the handleSubmit provided by the hook
 
@@ -145,7 +155,7 @@ const DeliveryForm: React.FC<DeliveryFormProps> = ({ onSubmit }) => {
             <Input
               type="date"
               id="deliveryDate"
-              {...register("deliveryDate", { required: "Date is required" })} // Use custom validation
+              {...register("deliveryDate", { validate: validateWeekend })} // Use custom validation
               className={cn(
                 errors.deliveryDate &&
                   "border-red-500 focus-visible:ring-red-500"

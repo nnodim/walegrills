@@ -5,24 +5,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils"; // Assuming cn utility
-import { useBookingStore } from "@/store/bookingStore"; // Adjust import path
+import { EventDetailsData, useBookingStore } from "@/store/bookingStore"; // Adjust import path
 import React from "react";
 import { SubmitHandler, useForm } from "react-hook-form"; // Import Controller for Shadcn components
 // No need for RiArrowDownSLine import here if using Shadcn Select's trigger arrow
 
-// Define the type for this step's form data
-interface EventDetailsFormData {
-  guests: number;
-  date: string; // YYYY-MM-DD format
-  bookingType: "On-site"; // Readonly in HTML, still included in form data
-  serviceTime: number;
-  eventType: string;
-  eventStyle: string;
-  eventAddress: string;
-}
-
 interface EventDetailsFormProps {
-  onSuccess: (data: EventDetailsFormData) => void; // Callback
+  onSuccess: (data: EventDetailsData) => void; // Callback
 }
 
 const EventDetailsForm: React.FC<EventDetailsFormProps> = ({ onSuccess }) => {
@@ -34,7 +23,7 @@ const EventDetailsForm: React.FC<EventDetailsFormProps> = ({ onSuccess }) => {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<EventDetailsFormData>({
+  } = useForm<EventDetailsData>({
     defaultValues: eventDetails || {
       // Set default values, using data from store if available
       guests: 50, // Default from HTML
@@ -44,8 +33,9 @@ const EventDetailsForm: React.FC<EventDetailsFormProps> = ({ onSuccess }) => {
       eventType: "wedding", // Default from HTML
       eventStyle: "buffet", // Default from HTML
       eventAddress: "",
+      note: "",
     },
-    mode: "onTouched", // Validate on blur or submit
+    mode: "all", // Validate on blur or submit
   });
 
   // Custom validation function for the date field (weekend only)
@@ -56,11 +46,11 @@ const EventDetailsForm: React.FC<EventDetailsFormProps> = ({ onSuccess }) => {
     if (day !== 0 && day !== 6) {
       return "Please select a weekend date (Saturday or Sunday)";
     }
-    return true; // Validation passes
+    return true;
   };
 
   // This function is called by handleSubmit ONLY if validation passes
-  const onSubmit: SubmitHandler<EventDetailsFormData> = (data) => {
+  const onSubmit: SubmitHandler<EventDetailsData> = (data) => {
     // data object includes all registered fields, including itemsNeeded array
     onSuccess(data); // Call the onSuccess callback from the parent page
   };
@@ -209,6 +199,16 @@ const EventDetailsForm: React.FC<EventDetailsFormProps> = ({ onSuccess }) => {
               {errors.eventAddress.message}
             </p>
           )}
+        </div>
+
+        <div className="md:col-span-2 relative flex flex-col gap-3">
+          <Label htmlFor="note">Note (optional)</Label>
+          <Textarea
+            id="note"
+            rows={3}
+            // Register optional textarea
+            {...register("note")}
+          />
         </div>
         {/* The "Next" button (in page.tsx) needs type="submit" and form="eventDetailsForm" */}
       </div>

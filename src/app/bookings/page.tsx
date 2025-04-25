@@ -19,6 +19,7 @@ import {
 } from "@/store/bookingStore";
 import { BookingPayload } from "@/types";
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { AxiosError } from "axios";
 import { ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
 import React from "react";
 import { toast } from "sonner";
@@ -96,7 +97,9 @@ const BookingPage: React.FC = () => {
       } else {
         // Handle case where paymentLink is missing in successful response
         console.error("Booking successful, but no paymentLink received:", data);
-        toast("");
+        toast.message("Booking successful, but no paymentLink received.", {
+          description: "Please try again.",
+        });
         // Optionally still move to step 5 or show a different success state
         if (bookingDetails?._id) {
           finalizeBooking({ booking: { _id: bookingDetails._id } });
@@ -108,9 +111,11 @@ const BookingPage: React.FC = () => {
       // Optionally reset form data here after successful API call
       // resetBooking(); // Decide when to reset state - maybe after final confirmation or on a new booking start
     },
-    onError: (error) => {
+    onError: (error: AxiosError<{ message: string }>) => {
       console.error("Booking failed:", error);
-      toast("Booking failed. Please try again.");
+      toast.message("Booking failed. Please try again.", {
+        description: error.response?.data?.message,
+      });
       // Optionally stay on Step 4 or show an error step/message
     },
   });
@@ -254,9 +259,9 @@ const BookingPage: React.FC = () => {
       />
 
       {/* Main Content Grid: Form/Review Area and Sidebar */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
         {/* Left Column: Form/Review/Confirmation */}
-        <div className="lg:col-span-2">
+        <div className="lg:col-span-3">
           {renderStepComponent()} {/* Render the active step component */}
         </div>
 

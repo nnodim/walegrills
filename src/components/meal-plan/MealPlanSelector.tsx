@@ -156,15 +156,16 @@ const MealPlanSelector: React.FC = () => {
                 <ul className="space-y-2 mb-6">
                   {(p.name.includes("10 Meal Plan")
                     ? [
-                        "$8.99 per meal",
-                        "Free delivery on first order",
-                        "Pause or cancel anytime",
+                        "Save time and money",
+                        "Eat balanced, nutritious meals",
+                        "Reduce decision fatigue",
+                        "Halal and Healthy Meals",
                       ]
                     : [
-                        "$8.49 per meal",
-                        "Free delivery on all orders",
-                        "Priority customer support",
-                        "Pause or cancel anytime",
+                        "Save time and money",
+                        "Eat balanced, nutritious meals",
+                        "Reduce decision fatigue",
+                        "Halal and Healthy Meals",
                       ]
                   ).map((feature, index) => (
                     <li key={index} className="flex items-center">

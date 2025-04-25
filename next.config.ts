@@ -5,6 +5,9 @@ const nextConfig: NextConfig = {
   env: {
     API_URL: "https://walegrills-backend.onrender.com",
   },
+  images: {
+    domains: ["res.cloudinary.com"],
+  },
 };
 
 export default nextConfig;

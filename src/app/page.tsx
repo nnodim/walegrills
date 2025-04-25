@@ -84,7 +84,9 @@ const MealSelectionPage: React.FC = () => {
     },
     onError: (error) => {
       console.error("Meal order failed:", error);
-      toast("An error occurred while placing your meal order.");
+      toast.message("An error occurred while placing your meal order.", {
+        description: error.message,
+      });
     },
   });
 
