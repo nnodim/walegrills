@@ -3,9 +3,11 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils"; // Assuming you have this utility
-import { ChevronDown } from "lucide-react";
-import React from "react";
+import axios, { AxiosError } from "axios";
+import { ChevronDown, Loader2 } from "lucide-react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form"; // Import useForm and SubmitHandler
+import { Textarea } from "./ui/textarea";
 
 // Define the type for your form data
 export interface DeliveryFormData {
@@ -23,6 +25,7 @@ interface DeliveryFormProps {
 }
 
 const DeliveryForm: React.FC<DeliveryFormProps> = ({ onSubmit }) => {
+  const [validatingAddress, setValidatingAddress] = useState(false);
   // Initialize react-hook-form
   const {
     register, // Function to register inputs
@@ -170,15 +173,44 @@ const DeliveryForm: React.FC<DeliveryFormProps> = ({ onSubmit }) => {
         </div>
 
         <div className="flex flex-col gap-3">
-          <Label htmlFor="deliveryAddress">Delivery Address</Label>
-          <Input
-            type="text"
+          <Label htmlFor="deliveryAddress" className="flex items-center">
+            Delivery Address{" "}
+            {validatingAddress && <Loader2 className="animate-spin w-2 h-2" />}
+          </Label>
+          <Textarea
             id="deliveryAddress"
+            rows={3}
+            placeholder="123 Main Street, London, SW1A 1AA"
             {...register("deliveryAddress", {
-              required: "Street Address is required",
+              required: "Delivery Address is required",
+              validate: async (value) => {
+                setValidatingAddress(true);
+                try {
+                  await axios.get("/api", {
+                    params: {
+                      origin: "",
+                      destination: value,
+                    },
+                  });
+
+                  return true;
+                } catch (error) {
+                  if (error instanceof AxiosError) {
+                    return (
+                      error.response?.data?.message ||
+                      "Could not verify address. Please enter a valid one."
+                    );
+                  }
+                  // Fallback for other types of errors
+                  return "Could not verify address. Please enter a valid one.";
+                } finally {
+                  setValidatingAddress(false);
+                }
+              },
             })}
             className={cn(
-              errors.address && "border-red-500 focus-visible:ring-red-500"
+              errors.deliveryAddress &&
+                "border-red-500 focus-visible:ring-red-500"
             )}
           />
           {errors.deliveryAddress && (

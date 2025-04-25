@@ -6,7 +6,9 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils"; // Assuming cn utility
 import { EventDetailsData, useBookingStore } from "@/store/bookingStore"; // Adjust import path
-import React from "react";
+import axios, { AxiosError } from "axios";
+import { Loader2 } from "lucide-react";
+import React, { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form"; // Import Controller for Shadcn components
 // No need for RiArrowDownSLine import here if using Shadcn Select's trigger arrow
 
@@ -15,7 +17,8 @@ interface EventDetailsFormProps {
 }
 
 const EventDetailsForm: React.FC<EventDetailsFormProps> = ({ onSuccess }) => {
-  // Get existing data from the store to pre-fill the form
+  const [validatingAddress, setValidatingAddress] = useState(false);
+
   const { eventDetails } = useBookingStore();
 
   // Initialize react-hook-form
@@ -182,13 +185,40 @@ const EventDetailsForm: React.FC<EventDetailsFormProps> = ({ onSuccess }) => {
 
         {/* Event Address Textarea */}
         <div className="md:col-span-2 relative flex flex-col gap-3">
-          <Label htmlFor="eventAddress">Event Address</Label>
+          <Label htmlFor="eventAddress" className="flex items-center">
+            Event Address{" "}
+            {validatingAddress && <Loader2 className="animate-spin w-2 h-2" />}
+          </Label>
           <Textarea
             id="eventAddress"
             rows={3}
             placeholder="123 Main Street, London, SW1A 1AA"
             {...register("eventAddress", {
               required: "Event Address is required",
+              validate: async (value) => {
+                setValidatingAddress(true);
+                try {
+                  await axios.get("/api", {
+                    params: {
+                      origin: "",
+                      destination: value,
+                    },
+                  });
+
+                  return true;
+                } catch (error) {
+                  if (error instanceof AxiosError) {
+                    return (
+                      error.response?.data?.message ||
+                      "Could not verify address. Please enter a valid one."
+                    );
+                  }
+                  // Fallback for other types of errors
+                  return "Could not verify address. Please enter a valid one.";
+                } finally {
+                  setValidatingAddress(false);
+                }
+              },
             })}
             className={cn(
               errors.eventAddress && "border-red-500 focus-visible:ring-red-500"

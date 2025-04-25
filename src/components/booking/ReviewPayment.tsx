@@ -1,7 +1,7 @@
 // components/booking/ReviewPayment.tsx
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 // Import the updated BookingState and other types
@@ -9,61 +9,171 @@ import {
   useBookingStore,
   EventDetailsData,
   PaymentOption,
+  SelectedItem,
   // BookingState,
 } from "@/store/bookingStore";
 import { cn } from "@/lib/utils";
+import axios from "axios";
+import { Skeleton } from "../ui/skeleton";
 
-// Dummy Price Breakdown Calculation (replace with actual logic if needed)
-// This function is based on the hardcoded values and structure in the original HTML
-// It might need significant updates if item selection affects the price calculation
-const calculatePrice = (
+export const calculateDistance = async (
+  origin: string,
+  destination: string
+): Promise<{ distance: number; duration: number }> => {
+  const res = await axios.get("/api", {
+    params: { origin, destination },
+  });
+
+  return res.data;
+};
+
+// Pricing calculation function matching backend logic
+const calculatePrice = async (
   eventDetails: EventDetailsData | null,
-  // selectedItems: BookingState["selectedItems"]
-): { breakdown: { label: string; amount: string }[]; total: string } => {
-  // This is a simplified example based on the HTML's static breakdown.
-  // A real calculation would consider guests, time, and the specific selectedItems quantities and their prices.
-  // For now, we'll keep the original HTML's example breakdown values but note the selected items.
-
+  selectedItems: SelectedItem[]
+): Promise<{
+  breakdown: { label: string; amount: string }[];
+  total: number;
+  staffCost: number;
+  equipmentCost: number;
+  transportationCost: number;
+  itemsTotal: number;
+}> => {
   if (!eventDetails) {
     return {
       breakdown: [],
-      total: "£0.00",
+      total: 0,
+      staffCost: 0,
+      equipmentCost: 0,
+      transportationCost: 0,
+      itemsTotal: 0,
     };
   }
 
-  // Hardcoded values from the HTML example
-  const baseRatePerHour = 37.0; // £37.00/hr
-  const serviceHours = 8; // 8 hours (assuming this is the duration for the £296 breakdown line)
-  const waiterCost = 360.0; // £360.00
-  const equipmentRental = 120.0; // £120.00
-  const travelFee = 45.0; // £45.00
+  const guests = eventDetails.guests;
+  const serviceTime = eventDetails.serviceTime;
 
-  const baseCost = baseRatePerHour * serviceHours;
-  const total = baseCost + waiterCost + equipmentRental + travelFee; // This calculation matches the HTML total
+  // Calculate distance if event address is provided
+  let distance = { distance: 0, duration: 0 };
+  if (eventDetails.eventAddress) {
+    distance = await calculateDistance("", eventDetails.eventAddress);
+  }
 
+  // Staff & equipment calculation based on guest count
+  let chefs = 0;
+  let waiters = 0;
+  let equipmentCost = 0;
+
+  if (guests <= 100) {
+    chefs = 1;
+    waiters = 2;
+    equipmentCost = 50;
+  } else if (guests <= 200) {
+    chefs = 2;
+    waiters = 4;
+    equipmentCost = 100;
+  } else if (guests <= 300) {
+    chefs = 4;
+    waiters = 5;
+    equipmentCost = 250;
+  } else if (guests <= 400) {
+    chefs = 4;
+    waiters = 6;
+    equipmentCost = 300;
+  } else if (guests <= 500) {
+    chefs = 4;
+    waiters = 8;
+    equipmentCost = 350;
+  }
+
+  // Staff rates based on service time
+  let chefRate = 0;
+  let waiterRate = 0;
+
+  if (serviceTime <= 5) {
+    chefRate = 18.5;
+    waiterRate = 12.5;
+  } else if (serviceTime <= 10) {
+    chefRate = 20;
+    waiterRate = 13.5;
+  } else if (serviceTime <= 15) {
+    chefRate = 22.5;
+    waiterRate = 14.5;
+  }
+
+  // Driver charge calculation based on travel time
+  let driverChargePh = 0;
+  const distanceHour = distance.duration;
+
+  if (distanceHour < 1) driverChargePh = 10;
+  else if (distanceHour < 2) driverChargePh = 20;
+  else if (distanceHour < 3) driverChargePh = 30;
+  else if (distanceHour < 4) driverChargePh = 40;
+
+  // Transportation cost calculation
+  let chargePermile = 0;
+  if (distance.distance < 10) {
+    chargePermile = 1;
+  } else if (distance.distance <= 20) {
+    chargePermile = 0.9;
+  } else {
+    chargePermile = 0.8;
+  }
+
+  const transportationCost = chargePermile * distance.distance + driverChargePh;
+
+  // Staff cost calculation
+  const chefCost = chefs * chefRate * serviceTime;
+  const waiterCost = waiters * waiterRate * serviceTime;
+  const staffCost = chefCost + waiterCost;
+
+  // Items total calculation
+  const itemsTotal = selectedItems.reduce((total, item) => {
+    return total + item.amount * item.quantity;
+  }, 0);
+
+  // Total fee calculation
+  const total = staffCost + equipmentCost + transportationCost + itemsTotal;
+
+  // Generate breakdown for UI
   const breakdown = [
     {
-      label: `Base Rate (2 chefs × £18.50/hr)`,
-      amount: `£${baseRatePerHour.toFixed(2)}/hr`,
+      label: `Chef Service (${chefs} chefs × £${chefRate.toFixed(
+        2
+      )}/hr × ${serviceTime} hrs)`,
+      amount: `£${chefCost.toFixed(2)}`,
     },
     {
-      label: `Service Duration (${serviceHours} hours)`,
-      amount: `£${baseCost.toFixed(2)}`,
-    },
-    {
-      label: `Waiter Service (3 waiters × £15.00/hr)`,
+      label: `Waiter Service (${waiters} waiters × £${waiterRate.toFixed(
+        2
+      )}/hr × ${serviceTime} hrs)`,
       amount: `£${waiterCost.toFixed(2)}`,
     },
-    { label: "Equipment Rental", amount: `£${equipmentRental.toFixed(2)}` },
-    { label: "Travel Fee", amount: `£${travelFee.toFixed(2)}` },
+    {
+      label: "Equipment Rental",
+      amount: `£${equipmentCost.toFixed(2)}`,
+    },
+    {
+      label: `Transportation (${distance.distance.toFixed(
+        1
+      )} miles at £${chargePermile.toFixed(
+        2
+      )}/mile + £${driverChargePh} driver fee)`,
+      amount: `£${transportationCost.toFixed(2)}`,
+    },
+    ...selectedItems.map((item) => ({
+      label: `${item.name || "Item"} (x${item.quantity})`,
+      amount: `£${(item.amount * item.quantity).toFixed(2)}`,
+    })),
   ];
-
-  // Note: This calculation *does not* currently use the selectedItems quantity/price.
-  // You would need product prices to make this dynamic.
 
   return {
     breakdown,
-    total: `£${total.toFixed(2)}`, // Format the total
+    total,
+    staffCost,
+    equipmentCost,
+    transportationCost,
+    itemsTotal,
   };
 };
 
@@ -77,10 +187,44 @@ const ReviewPayment: React.FC = () => {
     setPaymentOption,
   } = useBookingStore();
 
-  // Calculate price details (using dummy logic for now)
-  const priceDetails = calculatePrice(eventDetails);
-  const totalAmount = parseFloat(priceDetails.total.replace("£", "")); // Parse total for deposit calculation
-  const depositAmount = totalAmount * 0.4; // 40% deposit
+  const [priceDetails, setPriceDetails] = useState<{
+    breakdown: { label: string; amount: string }[];
+    total: number;
+    staffCost: number;
+    equipmentCost: number;
+    transportationCost: number;
+    itemsTotal: number;
+  }>({
+    breakdown: [],
+    total: 0,
+    staffCost: 0,
+    equipmentCost: 0,
+    transportationCost: 0,
+    itemsTotal: 0,
+  });
+
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Calculate price when component mounts or inputs change
+  useEffect(() => {
+    const fetchPriceDetails = async () => {
+      setIsLoading(true);
+      try {
+        const details = await calculatePrice(eventDetails, selectedItems);
+        setPriceDetails(details);
+      } catch (error) {
+        console.error("Error calculating price:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchPriceDetails();
+  }, [eventDetails, selectedItems]);
+
+  // Calculate deposit amount (40% of total)
+  const totalAmount = priceDetails.total;
+  const depositAmount = totalAmount * 0.4;
 
   return (
     <div id="step4" className="bg-white shadow-sm rounded p-6 mb-6">
@@ -180,7 +324,6 @@ const ReviewPayment: React.FC = () => {
             </div>
           )}
         </div>
-
       </div>
       {/* Payment Options */}
       <h3 className="text-lg font-medium text-gray-900 mb-4">
@@ -220,7 +363,11 @@ const ReviewPayment: React.FC = () => {
             </div>
           </div>
           <div className="text-lg font-medium text-primary">
-            £{totalAmount.toFixed(2)}
+            {isLoading ? (
+              <Skeleton className="h-6 w-20" />
+            ) : (
+              <>£{totalAmount.toFixed(2)}</>
+            )}
           </div>
         </div>
 
@@ -251,8 +398,14 @@ const ReviewPayment: React.FC = () => {
             </div>
           </div>
           <div className="text-lg font-medium text-primary">
-            £{depositAmount.toFixed(2)}{" "}
-            <span className="text-xs text-gray-600">now</span>
+            {isLoading ? (
+              <Skeleton className="h-6 w-20" />
+            ) : (
+              <>
+                £{depositAmount.toFixed(2)}{" "}
+                <span className="text-xs text-gray-600">now</span>
+              </>
+            )}
           </div>
         </div>
       </RadioGroup>

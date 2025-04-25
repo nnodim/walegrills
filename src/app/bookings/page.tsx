@@ -137,7 +137,7 @@ const BookingPage: React.FC = () => {
   };
 
   const handleItemSelectionSuccess = (
-    items: Array<{ productId: string; quantity: number }>
+    items: Array<{ productId: string; quantity: number, amount: number }>
   ) => {
     // Filter out items with quantity 0 before saving
     const selectedItemsWithQuantity = items.filter((item) => item.quantity > 0);

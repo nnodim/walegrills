@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 import { IProduct } from "@/types";
 import { ArrowUp, ArrowDown } from "lucide-react";
 import Image from "next/image";
+import { SelectedItem } from "@/store/bookingStore";
 
 // Define the type for the data this form will submit
 interface ItemSelectionFormData {
@@ -18,12 +19,6 @@ interface ItemSelectionFormData {
 }
 
 // Define the type for the selected items *saved to the store/API payload*
-// This matches the API's required format
-interface SelectedItem {
-  productId: string;
-  quantity: number;
-  name?: string; // Include name for display purposes
-}
 
 interface ItemSelectionProps {
   products: IProduct[]; // List of available products fetched from API
@@ -72,6 +67,7 @@ const ItemSelection: React.FC<ItemSelectionProps> = ({
         productId: product._id,
         quantity: quantity,
         name: product.name, // Include name for display
+        amount: product.amount,
       };
     });
 

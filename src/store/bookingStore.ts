@@ -27,10 +27,11 @@ export interface EventDetailsData {
 }
 
 // Define the type for the selected items, matching the API structure
-interface SelectedItem {
+export interface SelectedItem {
   productId: string;
   quantity: number;
   name?: string; // Optional: store name for display
+  amount: number;
 }
 
 // State shape
