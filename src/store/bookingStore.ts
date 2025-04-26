@@ -71,7 +71,7 @@ export const useBookingStore = create<BookingState & BookingActions>((set) => ({
 
   nextStep: () =>
     set((state) => {
-      const next = Math.min(state.currentStep + 1, 5) as BookingStep; // Max step is now 5
+      const next = Math.min(state.currentStep + 1, 4) as BookingStep; // Max step is now 5
       return { currentStep: next };
     }),
 
@@ -94,16 +94,13 @@ export const useBookingStore = create<BookingState & BookingActions>((set) => ({
   finalizeBooking: (apiResponseData: any) =>
     set((state) => {
       const bookingData = apiResponseData;
-      const bookingRef = bookingData?._id || state.bookingReference; // Use API _id as reference
-
-      // Optionally update other state based on API response if needed
-      // e.g., paymentStatus: bookingData?.paymentStatus,
+      const bookingRef = bookingData?._id || state.bookingReference;
 
       return {
         bookingReference: bookingRef,
-        currentStep: 5, // Move to the confirmation step (new step 5)
+        currentStep: 4,
       };
     }),
 
-  resetBooking: () => set(initialState), // Reset all state back to initial
+  resetBooking: () => set(initialState),
 }));

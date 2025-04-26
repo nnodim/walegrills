@@ -45,7 +45,7 @@ const BookingPage: React.FC = () => {
     eventDetails,
     selectedItems,
     selectedPaymentOption,
-    finalizeBooking, // Action for Step 3 -> 4 (handles final processing/reference)
+    finalizeBooking,
   } = useBookingStore();
 
   const {
@@ -85,15 +85,7 @@ const BookingPage: React.FC = () => {
         }
 
         toast("Redirecting to payment...");
-
-        // Redirect the user to the payment link
-        // Use router.push for client-side navigation within Next.js
         window.location.href = data?.paymentLink;
-
-        // Note: The user is being redirected, so the Confirmation step (Step 5)
-        // will not be shown immediately in this flow. The user would see Step 5
-        // upon returning from the payment link or revisiting the booking page
-        // if localStorage persists the step.
       } else {
         // Handle case where paymentLink is missing in successful response
         console.error("Booking successful, but no paymentLink received:", data);
@@ -107,16 +99,12 @@ const BookingPage: React.FC = () => {
           finalizeBooking(data?.data);
         }
       }
-
-      // Optionally reset form data here after successful API call
-      // resetBooking(); // Decide when to reset state - maybe after final confirmation or on a new booking start
     },
     onError: (error: AxiosError<{ message: string }>) => {
       console.error("Booking failed:", error);
       toast.message("Booking failed. Please try again.", {
         description: error.response?.data?.message,
       });
-      // Optionally stay on Step 4 or show an error step/message
     },
   });
 
@@ -158,36 +146,26 @@ const BookingPage: React.FC = () => {
     }
 
     // --- Construct the API Payload ---
-    // Map data from Zustand store state to the required API format
-    // Address the mapping issues identified previously
     const payload: BookingPayload = {
       prefix: personalInfo.title,
-      name: personalInfo.fullName, // Assuming API 'name' is the full name
+      name: personalInfo.fullName,
       email: personalInfo.email,
       phoneNumber: personalInfo.phone,
       numberOfGuests: eventDetails.guests,
-      // API expects 'YYYY-MM-DD HH:mm:ss'. Form provides 'YYYY-MM-DD'.
-      // Sending date string. API might need time, add inputs if so.
       eventDate: eventDetails.date,
-      // API expects a number for serviceTime, form provides a string like '6-10'.
-      // Need to map this string to a number. Use a clear mapping or prompt user for duration.
-      // Using a basic mapping based on the string value.
-      serviceTime: eventDetails.serviceTime, // **Mapping serviceTime string to number**
+      serviceTime: eventDetails.serviceTime,
       eventStyle: eventDetails.eventStyle,
-      eventVenue: eventDetails.eventAddress, // Mapping eventAddress to eventVenue
+      eventVenue: eventDetails.eventAddress,
       eventType: eventDetails.eventType,
-      // API expects a string like '100', store has 'full' | 'deposit'. Map store value to API value.
-      paymentOption: selectedPaymentOption === "full" ? 100 : 40, // **Mapping paymentOption**
-      // `selectedItems` is already in the correct format { productId, quantity }[]
+      paymentOption: selectedPaymentOption === "full" ? 100 : 40,
       itemsNeeded: selectedItems.map((item) => ({
         productId: item.productId,
         quantity: item.quantity,
-      })), // Use the data saved from the new Step 3
+      })),
     };
 
     console.log("Attempting to create booking with payload:", payload);
 
-    // Trigger the mutation
     createBookingMutation(payload);
   };
 

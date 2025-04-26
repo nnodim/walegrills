@@ -56,8 +56,8 @@ const MealSelectionPage: React.FC = () => {
     isError: isErrorMeals,
     error: mealsError,
   } = useQuery<IProduct[], Error>({
-    queryKey: ["getProducts", "productType=general"],
-    queryFn: async () => await getProducts("productType=general"),
+    queryKey: ["getProducts", "productType=mealprep"],
+    queryFn: async () => await getProducts("productType=mealprep"),
     enabled: currentStep === 1 || currentStep === 2,
     staleTime: 5 * 60 * 1000,
     retry: 1,
